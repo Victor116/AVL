@@ -15,7 +15,15 @@ public class ArbolBalanceado {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        ArbolB  ar = new ArbolB();
+        ar.insertarB(10);
+        ar.insertarB(5);
+        ar.insertarB(13);
+        ar.insertarB(1);
+        ar.insertarB(6);
+        ar.insertarB(17);
+        ar.insertarB(16);
+        ar.preOrder(ar.raiz);
     }
     
 }
