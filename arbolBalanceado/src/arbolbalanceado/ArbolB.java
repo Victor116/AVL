@@ -1,11 +1,11 @@
 package arbolbalanceado;
 
-import com.sun.org.apache.xml.internal.utils.StringBufferPool;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import javax.swing.JPanel;
 
 public class ArbolB{
 
@@ -17,7 +17,11 @@ public class ArbolB{
 	public ArbolB(){
 		raiz = null;
 	}
-
+        
+    public JPanel dibujaArbol(ArbolB ar){
+		return new Grafico(ar);
+    }
+    
     //Metodo para obtener el Factor de Equilibrio
     public int obtenerFE(Nodo reco) {
         if (reco == null) {
@@ -29,6 +33,7 @@ public class ArbolB{
 
     //Rotacion Simple a la Izquierda
     public Nodo rotacionIzq(Nodo nodort) {
+        System.out.println("Usando rotacion Simple a la izquierda");        
         Nodo aux = nodort.izq;
         nodort.izq = aux.der;
         aux.der = nodort;
@@ -40,6 +45,7 @@ public class ArbolB{
     //Rotacion Simple a la Derecha
 
     public Nodo rotacionDer(Nodo nodort) {
+        System.out.println("Usando rotacion simple a la izquierda");
         Nodo aux = nodort.der;
         nodort.der = aux.izq;
         aux.izq = nodort;
@@ -51,14 +57,16 @@ public class ArbolB{
     //Rotacion Compuesta a la Izquierda
 
     public Nodo rotacionCompIzq(Nodo nodoCom) {
+        System.out.println("Usando rotacion Compuesta a la izquierda");
         Nodo aux;
         nodoCom.izq = rotacionDer(nodoCom.izq);
         aux = rotacionIzq(nodoCom);
         return aux;
     }
 
-    //Rotacion Compuesta a la Izquierda
+    //Rotacion Compuesta a la Derecha
     public Nodo rotacionCompDer(Nodo nodoCom) {
+        System.out.println("Usando rotacion Compuesta a la derecha");
         Nodo aux;
         nodoCom.der = rotacionIzq(nodoCom.der);
         aux = rotacionDer(nodoCom);
@@ -70,14 +78,11 @@ public class ArbolB{
         Nodo nuevo = new Nodo(info);
         if (raiz == null) {
             raiz = nuevo;
-        } else {
+        } else{
             raiz = insertarAVL(nuevo, raiz);
         }
     }
 
-    public void eliminar(Nodo asesinado){
-        asesinado = null;
-    }
     public void eliminarAVL(int info){
 
         Nodo anterior = null, reco;
@@ -94,33 +99,9 @@ public class ArbolB{
             }
 
         }
-        //el = balancear(el);
-        //actualizarAltura(el);
-        //return el;
 
     }
 
-    public int eliminar_min(Nodo t) {
-        int fe;
-        if (t == null) {
-            return -1;
-        } else {
-            if (t.izq != null) {
-                fe = eliminar_min(t.izq);
-                t = balancear(t);
-                actualizarAltura(t);
-                return fe;
-            } else {
-                Nodo aux = t;
-                fe = aux.fe;
-                t = t.der;
-                aux = null;
-                t = balancear(t);
-                actualizarAltura(t);
-                return fe;
-            }
-        }
-    }
 
     //Actualizar el FE
     public void actualizarAltura(Nodo subAr) {
@@ -215,7 +196,8 @@ public class ArbolB{
       				raiz = reco.izq;
       			if(reco.der != null)
       				raiz = reco.der;
-
+                        balancear(raiz);
+                        actualizarAltura(raiz);
       		}
 
       		if(reco.der != null && reco.izq != null){//raiz con dos hijos
@@ -232,9 +214,11 @@ public class ArbolB{
       			System.out.println("Valor de aux: "+aux.dato);
       			aux.izq = reco.izq;
       			raiz = reco.der;
+                        balancear(raiz);
+                        actualizarAltura(nodo);
       		}
 
-      		System.out.println("El nodo se elimino correctamente");
+      		System.out.println("\nEl nodo se elimino correctamente\n");
       		return;
       	}
 
@@ -245,7 +229,7 @@ public class ArbolB{
       			nodo.der=null;
 
       		if(reco.der==null && reco.izq==null)
-      			System.out.println("El nodo se elimino correctamente");
+      			System.out.println("\nEl nodo se elimino correctamente\n");
                 balancear(nodo);
                 actualizarAltura(nodo);
       	}
@@ -259,17 +243,18 @@ public class ArbolB{
       		nodo = padre de reco
       		reco = nodo a eliminar
       		*/
-      		System.out.println("Eliminare un nodo con dos hijos");
+      		System.out.println("\nEliminare un nodo con dos hijos\n");
       		Nodo aux = null;
       		aux = reco.der;
       		while(aux.izq != null){
-      			aux = aux.izq;
+      			aux = aux.der;
       			if(aux.der!=null && aux.izq != null){
-                            balancear(nodo);
-                            actualizarAltura(nodo);                            
+                        
                             break;
       			}
       		}
+            balancear(nodo);
+            actualizarAltura(nodo); 
       		aux.izq = reco.izq;
 
       		if(info>nodo.dato)
@@ -294,7 +279,7 @@ public class ArbolB{
       			else
       				nodo.izq= reco.der;
 
-      			System.out.println("El nodo se elimino correctamente");
+      			System.out.println("\nEl nodo se elimino correctamente\n");
       			return;
       		}
       		if(reco.izq != null){
@@ -302,7 +287,7 @@ public class ArbolB{
       				nodo.der=reco.izq;
       			else
       				nodo.izq= reco.izq;
-      			System.out.println("El nodo se elimino correctamente");
+      			System.out.println("\nEl nodo se elimino correctamente\n");
       			return;
       		}
                 balancear(nodo);
@@ -312,6 +297,92 @@ public class ArbolB{
 
       }
 
+        public void muestraMenuAVL(){
+    /*
+      Método encargado de desplegar el menu de opciones disponibles
+    */
+		System.out.println("1.- Insertar elemento en el arbol");
+		System.out.println("2.- Buscar elemento en el arbol");
+		System.out.println("3- Remover elemento del arbol");
+		System.out.println("4.- Recorrido PreOrder");
+		System.out.println("5.- Recorrido InOrder");
+		System.out.println("6.- Creditos");
+		System.out.println("7.- Salir del programa");
+		menuOpcionAVL();
+	}
+        
+        public void menuOpcionAVL(){
+    /*
+      Método encargado de optener la opción del usuario
+             y ejecutar posteriormente la instruccion ordenada
+             */
+
+            Scanner sc = new Scanner(System.in);
+            int opcion = 0;
+            try {
+                opcion = sc.nextInt();
+            } catch (Exception e) {
+                System.out.println("Opcion invalida, introduzca solo opciones aceptables");
+                muestraMenuAVL();
+            }
+
+            int info;
+            boolean resultado;
+            switch (opcion) {
+                case 1:
+                    info = consigueValor();
+                    insertarB(info);
+                    muestraMenuAVL();
+                    break;
+                case 2:
+                    try {
+                        info = consigueValor();
+                        resultado = buscaElemento(info);
+                        if (resultado) {
+                            System.out.println("El elemento se encuentra en el arbol");
+                        } else {
+                            System.out.println("El elemento no se encuentra en el arbol");
+                        }
+                        muestraMenuAVL();
+                    } catch (Exception e) {
+
+                    }
+                    break;
+                case 3:
+                    info = consigueValor();
+                    eliminarAVL(info);
+                    muestraMenuAVL();
+                    break;
+                case 4:
+                    preOrder(raiz);
+                    System.out.println();
+                    muestraMenuAVL();
+                    break;
+                case 5:
+                    inOrder(raiz);
+                    System.out.println();
+                    muestraMenuAVL();
+                    break;
+                case 6:
+                    System.out.println("Universidad Politecnica de Chiapas");
+                    System.out.println("Materia: Estructuras de Datos Avanzadas");
+                    System.out.println("Catedratico: Mtra. Aremy Olaya Virrueta Gordillo");
+                    System.out.println("Alumno: Edgardo Rito Deheza Matricula: 143370");
+                    System.out.println("Alumno: Ernesto Sandoval Becerra Matricula: 143374");
+                    System.out.println("Alumno: Diana Alondra Toledo Maza: 143355");
+                    System.out.println("Alumno: Freddy Alesandro Gamboa: 133355");
+                    System.out.println("Alumno: Carlos Alejandro Zenteno Robles: 143382");
+                    muestraMenuAVL();
+                    break;
+                case 7:
+                    break;
+                default:
+                    System.out.println("Opcion invalida");
+                    menuOpcionAVL();
+                    break;
+            }
+
+	}
 
 	public void muestraMenu(){
     /*
@@ -457,20 +528,20 @@ public class ArbolB{
 	}
 
 	public int consigueValor(){
-    /*
-      Método encargado de verificar que los valores que introduce el usuario
-      sean valores aceptables
-    */
-		System.out.print("valor: "+"\n");
-		Scanner sc = new Scanner(System.in);
-		int opcion=0;
-		try{
-			 opcion = sc.nextInt();
-       return opcion;
-		}catch(Exception e){
-			System.out.println("Opcion invalida, introduzca solo valores enteros");
-			return consigueValor();
-		}
+            /*
+             Método encargado de verificar que los valores que introduce el usuario
+             sean valores aceptables
+             */
+            System.out.print("valor: " + "\n");
+            Scanner sc = new Scanner(System.in);
+            int opcion = 0;
+            try {
+                opcion = sc.nextInt();
+                return opcion;
+            } catch (Exception e) {
+                System.out.println("Opcion invalida, introduzca solo valores enteros");
+                return consigueValor();
+            }
 
 	}
 

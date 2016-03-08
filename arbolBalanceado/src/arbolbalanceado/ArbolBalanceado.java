@@ -5,6 +5,9 @@
  */
 package arbolbalanceado;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 /**
  *
  * @author ERIDE21
@@ -15,25 +18,15 @@ public class ArbolBalanceado {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        ArbolB arbolito = new ArbolB();
         ArbolB  ar = new ArbolB();
-        ar.insertarB(10);
-        ar.insertarB(5);
-        ar.insertarB(13);
-        ar.insertarB(1);
-        ar.insertarB(6);
-        ar.insertarB(17);
-        ar.insertarB(16);
-        ar.insertarB(18);
-        /*ar.insertarB(18);
-        ar.insertarB(19);
-        ar.insertarB(0);
-        ar.insertarB(7);
-        ar.insertarB(-3);*/
-        ar.preOrder(ar.raiz);
-        ar.eliminarAVL(16);
-        ar.eliminarAVL(5);
-        System.out.println("");
+        ar.muestraMenuAVL();
+        JFrame arbolB = new JFrame("Arbol grafico");
+        arbolB.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        arbolB.add(arbolito.dibujaArbol(ar));
+        arbolB.setSize(600, 800);
+        arbolB.setVisible(true);
         ar.preOrder(ar.raiz);
     }
-    
+
 }
