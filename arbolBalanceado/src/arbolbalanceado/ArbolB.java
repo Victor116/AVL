@@ -1,5 +1,6 @@
 package arbolbalanceado;
 
+import com.sun.org.apache.xml.internal.utils.StringBufferPool;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -16,6 +17,301 @@ public class ArbolB{
 	public ArbolB(){
 		raiz = null;
 	}
+
+    //Metodo para obtener el Factor de Equilibrio
+    public int obtenerFE(Nodo reco) {
+        if (reco == null) {
+            return -1;
+        } else {
+            return reco.fe;
+        }
+    }
+
+    //Rotacion Simple a la Izquierda
+    public Nodo rotacionIzq(Nodo nodort) {
+        Nodo aux = nodort.izq;
+        nodort.izq = aux.der;
+        aux.der = nodort;
+        nodort.fe = max(obtenerFE(nodort.izq), obtenerFE(nodort.der)) + 1;
+        aux.fe = max(obtenerFE(aux.izq), obtenerFE(aux.der)) + 1;
+        return aux;
+    }
+
+    //Rotacion Simple a la Derecha
+
+    public Nodo rotacionDer(Nodo nodort) {
+        Nodo aux = nodort.der;
+        nodort.der = aux.izq;
+        aux.izq = nodort;
+        nodort.fe = max(obtenerFE(nodort.izq), obtenerFE(nodort.der)) + 1;
+        aux.fe = max(obtenerFE(aux.izq), obtenerFE(aux.der)) + 1;
+        return aux;
+    }
+
+    //Rotacion Compuesta a la Izquierda
+
+    public Nodo rotacionCompIzq(Nodo nodoCom) {
+        Nodo aux;
+        nodoCom.izq = rotacionDer(nodoCom.izq);
+        aux = rotacionIzq(nodoCom);
+        return aux;
+    }
+
+    //Rotacion Compuesta a la Izquierda
+    public Nodo rotacionCompDer(Nodo nodoCom) {
+        Nodo aux;
+        nodoCom.der = rotacionIzq(nodoCom.der);
+        aux = rotacionDer(nodoCom);
+        return aux;
+    }
+    //Metodo para insertar Balanceadamente
+
+    public void insertarB(int info) {
+        Nodo nuevo = new Nodo(info);
+        if (raiz == null) {
+            raiz = nuevo;
+        } else {
+            raiz = insertarAVL(nuevo, raiz);
+        }
+    }
+
+    public void eliminar(Nodo asesinado){
+        asesinado = null;
+    }
+    public void eliminarAVL(int info){
+
+        Nodo anterior = null, reco;
+        reco = raiz;
+        while (reco != null) {
+            if (reco.dato == info) {
+                verificaNodo(anterior,reco,info);
+            }
+            anterior = reco;
+            if (info < reco.dato) {
+                reco = reco.izq;
+            } else {
+                reco = reco.der;
+            }
+
+        }
+        //el = balancear(el);
+        //actualizarAltura(el);
+        //return el;
+
+    }
+
+    public int eliminar_min(Nodo t) {
+        int fe;
+        if (t == null) {
+            return -1;
+        } else {
+            if (t.izq != null) {
+                fe = eliminar_min(t.izq);
+                t = balancear(t);
+                actualizarAltura(t);
+                return fe;
+            } else {
+                Nodo aux = t;
+                fe = aux.fe;
+                t = t.der;
+                aux = null;
+                t = balancear(t);
+                actualizarAltura(t);
+                return fe;
+            }
+        }
+    }
+
+    //Actualizar el FE
+    public void actualizarAltura(Nodo subAr) {
+        if ((subAr.izq == null) && (subAr.der != null)) {
+            subAr.fe = subAr.der.fe + 1;
+        } else if ((subAr.der == null) && (subAr.izq != null)) {
+            subAr.fe = subAr.izq.fe + 1;
+        } else {
+            subAr.fe = max(obtenerFE(subAr.izq), obtenerFE(subAr.der)) + 1;
+        }
+    }
+
+    public int max(int a, int b) {
+        if(a>=b) return a;
+        return b;
+    }
+
+    //Balncear
+    public Nodo balancear(Nodo subAr) {
+        Nodo nuevoPadre = subAr;
+        if (obtenerFE(subAr.izq) - obtenerFE(subAr.der) == 2) {
+            if (subAr.dato < subAr.izq.dato) {
+                nuevoPadre = rotacionIzq(subAr);
+            } else {
+                nuevoPadre = rotacionCompIzq(subAr);
+            }
+        }
+        if ((obtenerFE(subAr.der) - obtenerFE(subAr.izq) == 2)) {
+            if (subAr.dato > subAr.der.dato) {
+                nuevoPadre = rotacionDer(subAr);
+            } else {
+                nuevoPadre = rotacionCompDer(subAr);
+            }
+        }
+        return nuevoPadre;
+    }
+
+    //Metodo para insertar AVL
+    public Nodo insertarAVL(Nodo nuevo, Nodo subAr) {
+        Nodo nuevoPadre = subAr;
+        if (nuevo.dato < subAr.dato) {
+            if (subAr.izq == null) {
+                subAr.izq = nuevo;
+            } else {
+                subAr.izq = insertarAVL(nuevo, subAr.izq);
+                if (obtenerFE(subAr.izq) - obtenerFE(subAr.der) == 2) {
+                    if (nuevo.dato < subAr.izq.dato) {
+                        nuevoPadre = rotacionIzq(subAr);
+                    } else {
+                        nuevoPadre = rotacionCompIzq(subAr);
+                    }
+                }
+            }
+        } else if (nuevo.dato > subAr.dato) {
+            if (subAr.der == null) {
+                subAr.der = nuevo;
+            } else {
+                subAr.der = insertarAVL(nuevo, subAr.der);
+                if ((obtenerFE(subAr.der) - obtenerFE(subAr.izq) == 2)) {
+                    if (nuevo.dato > subAr.der.dato) {
+                        nuevoPadre = rotacionDer(subAr);
+                    } else {
+                        nuevoPadre = rotacionCompDer(subAr);
+                    }
+                }
+            }
+        } else {
+            System.out.println("Nodo duplicado");
+        }
+        //Actualizar el FE
+        actualizarAltura(subAr);
+        return nuevoPadre;
+    }
+
+    public void verificaNodo(Nodo nodo,Nodo reco, int info){
+
+      	/*
+        Método encargado de identificar el tipo de nodo que procedera a ser eliminado
+        Nodo:
+      	 -reco=nodo a eliminar
+      	 -nodo = nodo padre de reco
+      	 -info = dato que se quiere eliminar
+      	*/
+
+      	if(nodo==null){//Si lo que desea es eliminarse la raiz
+
+      		if(reco.der==null && reco.izq==null)//aqui solo entra hojas
+      			raiz=null;
+      		if(reco.izq!=null || reco.der!=null){//aqui solo entra raiz con un hijo
+      			System.out.println("Elimina raiz con un solo hijo");
+      			if(reco.izq != null)
+      				raiz = reco.izq;
+      			if(reco.der != null)
+      				raiz = reco.der;
+
+      		}
+
+      		if(reco.der != null && reco.izq != null){//raiz con dos hijos
+      			System.out.println("Elimina raiz con dos hijos");
+      			Nodo aux=null;
+      			aux = reco.der;
+      			System.out.println("Valor de aux: "+aux.dato);
+      			while(aux.izq != null){
+	      			aux = aux.izq;
+	      			if(aux.der!=null && aux.izq != null){
+	      				break;
+      				}
+      			}
+      			System.out.println("Valor de aux: "+aux.dato);
+      			aux.izq = reco.izq;
+      			raiz = reco.der;
+      		}
+
+      		System.out.println("El nodo se elimino correctamente");
+      		return;
+      	}
+
+      	if(reco.der==null && reco.izq == null){//verifica que si lo que se va a eliminar es una hoja
+      		if(info<nodo.dato)
+      			nodo.izq=null;
+      		else
+      			nodo.der=null;
+
+      		if(reco.der==null && reco.izq==null)
+      			System.out.println("El nodo se elimino correctamente");
+                balancear(nodo);
+                actualizarAltura(nodo);
+      	}
+
+
+
+      	if(reco.der != null && reco.izq != null){//verifica si el nodo a eliminar tiene dos hijos
+
+      		/*
+      		Por convencion tomare el mayor de lado izquierdo
+      		nodo = padre de reco
+      		reco = nodo a eliminar
+      		*/
+      		System.out.println("Eliminare un nodo con dos hijos");
+      		Nodo aux = null;
+      		aux = reco.der;
+      		while(aux.izq != null){
+      			aux = aux.izq;
+      			if(aux.der!=null && aux.izq != null){
+                            balancear(nodo);
+                            actualizarAltura(nodo);                            
+                            break;
+      			}
+      		}
+      		aux.izq = reco.izq;
+
+      		if(info>nodo.dato)
+      			nodo.der = reco.der;
+      		else
+      			nodo.izq = reco.der;
+
+      	}
+
+      	if(reco.der==null || reco.izq == null){// verifica si el nodo a eliminar tiene un solo hijo
+      		boolean lado;
+
+      		if(reco.dato>nodo.dato)
+      			lado=true;
+      		else
+      			lado=false;
+
+      		if(reco.der != null){
+
+      			if(lado)
+      				nodo.der=reco.der;
+      			else
+      				nodo.izq= reco.der;
+
+      			System.out.println("El nodo se elimino correctamente");
+      			return;
+      		}
+      		if(reco.izq != null){
+      			if(lado)
+      				nodo.der=reco.izq;
+      			else
+      				nodo.izq= reco.izq;
+      			System.out.println("El nodo se elimino correctamente");
+      			return;
+      		}
+                balancear(nodo);
+                actualizarAltura(nodo);  
+      	}
+
+
+      }
+
 
 	public void muestraMenu(){
     /*
@@ -175,7 +471,7 @@ public class ArbolB{
 			System.out.println("Opcion invalida, introduzca solo valores enteros");
 			return consigueValor();
 		}
-    
+
 	}
 
 
@@ -241,7 +537,7 @@ public class ArbolB{
           Método para recorrer el árbol en el sentido inOrder(izquierda, raíz, derecha)
         */
           if (reco != null)
-          {    
+          {
               inOrder (reco.izq);
               System.out.print(reco.dato + " ");
               inOrder (reco.der);
@@ -266,7 +562,7 @@ public class ArbolB{
           Método encargado de proporcionar la información del nodo solicitado
           (nivel del nodo, valor de sus nodos, tipo de nodo(rama, hoja))
         */
-      	Nodo anterior = null, reco;  
+      	Nodo anterior = null, reco;
       	int nivel=0;
               reco = raiz;
               while (reco != null)
@@ -274,18 +570,18 @@ public class ArbolB{
               	nivel++;
                   anterior = reco;
                   if(info == reco.dato){
-                  	System.out.println("Nivel en el que se encuentra el nodo: "+(nivel-1));
-                  	System.out.print("valor izquierdo: \n");
+                  	//System.out.println("Nivel en el que se encuentra el nodo: "+(nivel-1));
+                  	//System.out.print("valor izquierdo: \n");
                   	if(reco.izq != null)
-                  		System.out.println(reco.izq.getDato());
-                  	System.out.print("valor derecho: \n");
+                  		//System.out.println(reco.izq.getDato());
+                  	//System.out.print("valor derecho: \n");
                   	if(reco.der != null)
-                  		System.out.println(reco.der.getDato());
+                  		//System.out.println(reco.der.getDato());
                   	if(reco.der==null && reco.izq==null)
-                  		System.out.println("nodo de tipo: hoja");
-                  	else
-                  		System.out.println("Nodo de tipo: rama");
-                    System.out.println("Altura del nodo: "+retornarAltura(reco));
+                  		//System.out.println("nodo de tipo: hoja");
+                  	//else
+                  		//System.out.println("Nodo de tipo: rama");
+                    //System.out.println("Altura del nodo: "+retornarAltura(reco));
 
                   	return true;
                   }
@@ -330,217 +626,9 @@ public class ArbolB{
 
               }
               System.out.println("El elemento que desea eliminar no se encuentra en el arbol");
-             
-      }
-  
-
-      public void verificaNodo(Nodo nodo,Nodo reco, int info){
-
-      	/*
-        Método encargado de identificar el tipo de nodo que procedera a ser eliminado
-        Nodo:
-      	 -reco=nodo a eliminar
-      	 -nodo = nodo padre de reco
-      	 -info = dato que se quiere eliminar
-      	*/
-
-      	if(nodo==null){//Si lo que desea es eliminarse la raiz
-
-      		if(reco.der==null && reco.izq==null)//aqui solo entra hojas
-      			raiz=null;
-      		if(reco.izq!=null || reco.der!=null){//aqui solo entra raiz con un hijo
-      			System.out.println("Elimina raiz con un solo hijo");
-      			if(reco.izq != null)
-      				raiz = reco.izq;
-      			if(reco.der != null)
-      				raiz = reco.der;
-
-      		}
-
-      		if(reco.der != null && reco.izq != null){//raiz con dos hijos
-      			System.out.println("Elimina raiz con dos hijos");
-      			Nodo aux=null;
-      			aux = reco.der;
-      			System.out.println("Valor de aux: "+aux.dato);
-      			while(aux.izq != null){
-	      			aux = aux.izq;
-	      			if(aux.der!=null && aux.izq != null){
-	      				break;
-      				}
-      			}
-      			System.out.println("Valor de aux: "+aux.dato);
-      			aux.izq = reco.izq; 
-      			raiz = reco.der;
-      		}
-
-      		System.out.println("El nodo se elimino correctamente");
-      		return;
-      	}
-
-      	if(reco.der==null && reco.izq == null){//verifica que si lo que se va a eliminar es una hoja
-      		if(info<nodo.dato)
-      			nodo.izq=null;
-      		else
-      			nodo.der=null;
-
-      		if(reco.der==null && reco.izq==null)
-      			System.out.println("El nodo se elimino correctamente");
-      	}
-
-      	
-
-      	if(reco.der != null && reco.izq != null){//verifica si el nodo a eliminar tiene dos hijos
-
-      		/*
-      		Por convencion tomare el mayor de lado izquierdo
-      		nodo = padre de reco
-      		reco = nodo a eliminar
-      		*/
-      		System.out.println("Eliminare un nodo con dos hijos");
-      		Nodo aux = null;
-      		aux = reco.der;
-      		while(aux.izq != null){
-      			aux = aux.izq;
-      			if(aux.der!=null && aux.izq != null){
-      				break;
-      			}
-      		}
-      		aux.izq = reco.izq;
-
-      		if(info>nodo.dato)
-      			nodo.der = reco.der;
-      		else
-      			nodo.izq = reco.der;
-
-      	}
-
-      	if(reco.der==null || reco.izq == null){// verifica si el nodo a eliminar tiene un solo hijo
-      		boolean lado;
-
-      		if(reco.dato>nodo.dato)
-      			lado=true;
-      		else
-      			lado=false;
-
-      		if(reco.der != null){
-
-      			if(lado)
-      				nodo.der=reco.der;
-      			else
-      				nodo.izq= reco.der;
-
-      			System.out.println("El nodo se elimino correctamente");
-      			return;
-      		}
-      		if(reco.izq != null){
-      			if(lado)
-      				nodo.der=reco.izq;
-      			else
-      				nodo.izq= reco.izq;
-      			System.out.println("El nodo se elimino correctamente");
-      			return;
-      		}
-      	}
-
 
       }
-      //Metodo para insertar Balanceadamente
-      public void insertarB(int info){
-          Nodo nuevo = new Nodo(info);
-          if (raiz == null) {
-              raiz = nuevo;
-          }else{
-              raiz = insertarAVL(nuevo, raiz);
-          }
-      }
-      
-      
-      //Metodo para obtener el Factor de Equilibrio
-      public int obtenerFE(Nodo reco){
-          if (reco == null) {
-              return -1;
-          }else{
-              return reco.fe;
-          }
-      }
-      
-      //Rotacion Simple a la Izquierda
-      public Nodo rotacionIzq(Nodo nodort){
-          Nodo aux = nodort.izq;
-          nodort.izq = aux.der;
-          aux.der = nodort;
-          nodort.fe = Math.max(obtenerFE(nodort.izq),obtenerFE(nodort.der)) +1;
-          aux.fe = Math.max(obtenerFE(aux.izq),obtenerFE(aux.der)) +1;
-          return aux;
-      }
-      //Rotacion Simple a la Derecha
-      public Nodo rotacionDer(Nodo nodort){
-          Nodo aux = nodort.der;
-          nodort.der = aux.izq;
-          aux.izq = nodort;
-          nodort.fe = Math.max(obtenerFE(nodort.izq),obtenerFE(nodort.der)) +1;
-          aux.fe = Math.max(obtenerFE(aux.izq),obtenerFE(aux.der)) +1;
-          return aux;
-      }
-      //Rotacion Compuesta a la Izquierda
-      public Nodo rotacionCompIzq(Nodo nodoCom){
-          Nodo aux;
-          nodoCom.izq = rotacionDer(nodoCom.izq);
-          aux = rotacionIzq(nodoCom);
-          return aux;
-      }
-      
-      //Rotacion Compuesta a la Izquierda
-      public Nodo rotacionCompDer(Nodo nodoCom){
-          Nodo aux;
-          nodoCom.der = rotacionIzq(nodoCom.der);
-          aux = rotacionDer(nodoCom);
-          return aux;
-      }
-      
-      //Metodo para insertar AVL
-      public Nodo insertarAVL (Nodo nuevo, Nodo subAr){
-          Nodo nuevoPadre = subAr;
-          if (nuevo.dato  < subAr.dato) {
-              if (subAr.izq == null) {
-                  subAr.izq = nuevo;
-              }else{
-                  subAr.izq = insertarAVL(nuevo, subAr.izq);
-                  if (obtenerFE(subAr.izq) - obtenerFE(subAr.der) == 2) {
-                      if (nuevo.dato < subAr.izq.dato) {
-                          nuevoPadre = rotacionIzq(subAr);
-                      }else{
-                           nuevoPadre = rotacionCompIzq(subAr);                         
-                      }
-                  }
-              }
-          }else if(nuevo.dato > subAr.dato){
-              if (subAr.der == null) {
-                  subAr.der = nuevo;
-              }else{
-                  subAr.der = insertarAVL(nuevo, subAr.der);
-                  if ((obtenerFE(subAr.der) - obtenerFE(subAr.izq) == 2)) {
-                      if (nuevo.dato > subAr.der.dato) {
-                          nuevoPadre = rotacionDer(subAr);
-                      }else{
-                          nuevoPadre = rotacionCompDer(subAr);
-                      }
-                  }
-              }
-          }else {
-              System.out.println("Nodo duplicado");
-          }
-          //Actualizar el FE
-          if ((subAr.izq == null)  && (subAr.der != null)) {
-              subAr.fe = subAr.der.fe + 1;
-          }else if((subAr.der == null) && (subAr.izq != null)){
-              subAr.fe = subAr.izq.fe + 1;
-          }else{
-              subAr.fe = Math.max(obtenerFE(subAr.izq), obtenerFE(subAr.der)) + 1 ;
-          }
-          return nuevoPadre;
-      }
-      
+
       public int cantidad() {
         /*
           Devuelve la cantidad de nodos que se encuentran en el árbol actualmente
@@ -557,7 +645,7 @@ public class ArbolB{
             cantidad(reco.getDer());
         }
     }
- 
+
     public int retornarAltura(Nodo nodo) {
       /*
         Método encargado de retornar la altura actual del árbol

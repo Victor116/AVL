@@ -23,6 +23,16 @@ public class ArbolBalanceado {
         ar.insertarB(6);
         ar.insertarB(17);
         ar.insertarB(16);
+        ar.insertarB(18);
+        /*ar.insertarB(18);
+        ar.insertarB(19);
+        ar.insertarB(0);
+        ar.insertarB(7);
+        ar.insertarB(-3);*/
+        ar.preOrder(ar.raiz);
+        ar.eliminarAVL(16);
+        ar.eliminarAVL(5);
+        System.out.println("");
         ar.preOrder(ar.raiz);
     }
     
