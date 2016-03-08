@@ -13,20 +13,14 @@ import javax.swing.JPanel;
  * @author ERIDE21
  */
 public class ArbolBalanceado {
+    public static ArbolB  ar = new ArbolB();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         ArbolB arbolito = new ArbolB();
-        ArbolB  ar = new ArbolB();
         ar.muestraMenuAVL();
-        JFrame arbolB = new JFrame("Arbol grafico");
-        arbolB.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        arbolB.add(arbolito.dibujaArbol(ar));
-        arbolB.setSize(600, 800);
-        arbolB.setVisible(true);
-        ar.preOrder(ar.raiz);
     }
 
 }

@@ -1,10 +1,12 @@
 package arbolbalanceado;
 
+import static arbolbalanceado.ArbolBalanceado.ar;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class ArbolB{
@@ -17,11 +19,11 @@ public class ArbolB{
 	public ArbolB(){
 		raiz = null;
 	}
-        
+
     public JPanel dibujaArbol(ArbolB ar){
 		return new Grafico(ar);
     }
-    
+
     //Metodo para obtener el Factor de Equilibrio
     public int obtenerFE(Nodo reco) {
         if (reco == null) {
@@ -33,7 +35,7 @@ public class ArbolB{
 
     //Rotacion Simple a la Izquierda
     public Nodo rotacionIzq(Nodo nodort) {
-        System.out.println("Usando rotacion Simple a la izquierda");        
+        System.out.println("Usando rotacion Simple a la izquierda");
         Nodo aux = nodort.izq;
         nodort.izq = aux.der;
         aux.der = nodort;
@@ -44,7 +46,8 @@ public class ArbolB{
 
     //Rotacion Simple a la Derecha
 
-    public Nodo rotacionDer(Nodo nodort) {
+    public Nodo
+         rotacionDer(Nodo nodort) {
         System.out.println("Usando rotacion simple a la izquierda");
         Nodo aux = nodort.der;
         nodort.der = aux.izq;
@@ -118,8 +121,15 @@ public class ArbolB{
         if(a>=b) return a;
         return b;
     }
+    public void dibujarArbol(){
+        JFrame arbolB = new JFrame("Arbol grafico");
+        arbolB.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        arbolB.add(dibujaArbol(ar));
+        arbolB.setSize(600, 800);
+        arbolB.setVisible(true);
+    }
 
-    //Balncear
+    //Balancear
     public Nodo balancear(Nodo subAr) {
         Nodo nuevoPadre = subAr;
         if (obtenerFE(subAr.izq) - obtenerFE(subAr.der) == 2) {
@@ -147,6 +157,7 @@ public class ArbolB{
                 subAr.izq = nuevo;
             } else {
                 subAr.izq = insertarAVL(nuevo, subAr.izq);
+                actualizarAltura(subAr);
                 if (obtenerFE(subAr.izq) - obtenerFE(subAr.der) == 2) {
                     if (nuevo.dato < subAr.izq.dato) {
                         nuevoPadre = rotacionIzq(subAr);
@@ -160,6 +171,7 @@ public class ArbolB{
                 subAr.der = nuevo;
             } else {
                 subAr.der = insertarAVL(nuevo, subAr.der);
+                actualizarAltura(subAr);
                 if ((obtenerFE(subAr.der) - obtenerFE(subAr.izq) == 2)) {
                     if (nuevo.dato > subAr.der.dato) {
                         nuevoPadre = rotacionDer(subAr);
@@ -176,126 +188,145 @@ public class ArbolB{
         return nuevoPadre;
     }
 
-    public void verificaNodo(Nodo nodo,Nodo reco, int info){
+    public void verificaNodo(Nodo nodo, Nodo reco, int info) {
 
-      	/*
-        Método encargado de identificar el tipo de nodo que procedera a ser eliminado
-        Nodo:
-      	 -reco=nodo a eliminar
-      	 -nodo = nodo padre de reco
-      	 -info = dato que se quiere eliminar
-      	*/
+        /*
+         Método encargado de identificar el tipo de nodo que procedera a ser eliminado
+         Nodo:
+         -reco=nodo a eliminar
+         -nodo = nodo padre de reco
+         -info = dato que se quiere eliminar
+         */
+        if (nodo == null) {//Si lo que desea es eliminarse la raiz
 
-      	if(nodo==null){//Si lo que desea es eliminarse la raiz
+            if (reco.der == null && reco.izq == null) {//aqui solo entra hojas
+                raiz = null;
+                return;
+            }
+            if ((reco.izq != null && reco.der == null) || (reco.der != null && reco.izq == null)) {//aqui solo entra raiz con un hijo
+                System.out.println("Elimina raiz con un solo hijo");
+                if (reco.izq != null) {
+                    raiz = reco.izq;
+                }
+                if (reco.der != null) {
+                    raiz = reco.der;
+                }
+                balancear(raiz);
+                actualizarAltura(raiz);
+                return;
+            }
 
-      		if(reco.der==null && reco.izq==null)//aqui solo entra hojas
-      			raiz=null;
-      		if(reco.izq!=null || reco.der!=null){//aqui solo entra raiz con un hijo
-      			System.out.println("Elimina raiz con un solo hijo");
-      			if(reco.izq != null)
-      				raiz = reco.izq;
-      			if(reco.der != null)
-      				raiz = reco.der;
-                        balancear(raiz);
-                        actualizarAltura(raiz);
-      		}
+            if (reco.der != null && reco.izq != null) {//raiz con dos hijos
+                System.out.println("Elimina raiz con dos hijos");
+                Nodo aux = null;
+                aux = reco.der;
+                Nodo last = aux;
+                System.out.println("Valor de aux: " + aux.dato);
+                if (raiz.der.der == null && raiz.der.izq == null && raiz.izq.der == null && raiz.izq.izq == null ) {
+                    raiz.dato = raiz.der.dato;
+                    raiz.der = null;
+                    return;
+                }
+                while (aux.izq != null) {
+                    last = aux;
+                    aux = aux.izq;
+                    if (aux.der == null && aux.izq == null) {
+                        break;
+                    }
+                }
+                System.out.println("Valor de aux: " + aux.dato);
+                raiz.dato = aux.dato;
+                last.izq = null;
+                //raiz = reco.der;
+                balancear(raiz);
+                actualizarAltura(raiz);
+            }
 
-      		if(reco.der != null && reco.izq != null){//raiz con dos hijos
-      			System.out.println("Elimina raiz con dos hijos");
-      			Nodo aux=null;
-      			aux = reco.der;
-      			System.out.println("Valor de aux: "+aux.dato);
-      			while(aux.izq != null){
-	      			aux = aux.izq;
-	      			if(aux.der!=null && aux.izq != null){
-	      				break;
-      				}
-      			}
-      			System.out.println("Valor de aux: "+aux.dato);
-      			aux.izq = reco.izq;
-      			raiz = reco.der;
-                        balancear(raiz);
-                        actualizarAltura(nodo);
-      		}
+            System.out.println("\nLa raiz se elimino correctamente\n");
+            return;
+        }
 
-      		System.out.println("\nEl nodo se elimino correctamente\n");
-      		return;
-      	}
+        if (reco.der == null && reco.izq == null) {//verifica que si lo que se va a eliminar es una hoja
+            if (info < nodo.dato) {
+                nodo.izq = null;
+            } else {
+                nodo.der = null;
+            }
 
-      	if(reco.der==null && reco.izq == null){//verifica que si lo que se va a eliminar es una hoja
-      		if(info<nodo.dato)
-      			nodo.izq=null;
-      		else
-      			nodo.der=null;
-
-      		if(reco.der==null && reco.izq==null)
-      			System.out.println("\nEl nodo se elimino correctamente\n");
-                balancear(nodo);
-                actualizarAltura(nodo);
-      	}
-
-
-
-      	if(reco.der != null && reco.izq != null){//verifica si el nodo a eliminar tiene dos hijos
-
-      		/*
-      		Por convencion tomare el mayor de lado izquierdo
-      		nodo = padre de reco
-      		reco = nodo a eliminar
-      		*/
-      		System.out.println("\nEliminare un nodo con dos hijos\n");
-      		Nodo aux = null;
-      		aux = reco.der;
-      		while(aux.izq != null){
-      			aux = aux.der;
-      			if(aux.der!=null && aux.izq != null){
-                        
-                            break;
-      			}
-      		}
+            if (reco.der == null && reco.izq == null) {
+                System.out.println("\nEl nodo se elimino correctamente\n");
+            }
+            actualizarAltura(nodo);
             balancear(nodo);
-            actualizarAltura(nodo); 
-      		aux.izq = reco.izq;
+            
+        }
 
-      		if(info>nodo.dato)
-      			nodo.der = reco.der;
-      		else
-      			nodo.izq = reco.der;
+        if (reco.der != null && reco.izq != null) {//verifica si el nodo a eliminar tiene dos hijos
 
-      	}
+            /*
+             Por convencion tomare el mayor de lado izquierdo
+             nodo = padre de reco
+             reco = nodo a eliminar
+             */
+            System.out.println("\nEliminare un nodo con dos hijos\n");
+            Nodo aux = null;
+            aux = reco.der;
+            while (aux.izq != null) {
+                aux = aux.der;
+                if (aux.der != null && aux.izq != null) {
 
-      	if(reco.der==null || reco.izq == null){// verifica si el nodo a eliminar tiene un solo hijo
-      		boolean lado;
+                    break;
+                }
+            }
+            aux.izq = reco.izq;
 
-      		if(reco.dato>nodo.dato)
-      			lado=true;
-      		else
-      			lado=false;
+            if (info > nodo.dato) {
+                nodo.der = reco.der;
+            } else {
+                nodo.izq = reco.der;
+            }
+            actualizarAltura(nodo);
+            balancear(nodo);
+        }
 
-      		if(reco.der != null){
+        if (reco.der == null || reco.izq == null) {// verifica si el nodo a eliminar tiene un solo hijo
+            boolean lado;
 
-      			if(lado)
-      				nodo.der=reco.der;
-      			else
-      				nodo.izq= reco.der;
+            if (reco.dato > nodo.dato) {
+                lado = true;
+            } else {
+                lado = false;
+            }
 
-      			System.out.println("\nEl nodo se elimino correctamente\n");
-      			return;
-      		}
-      		if(reco.izq != null){
-      			if(lado)
-      				nodo.der=reco.izq;
-      			else
-      				nodo.izq= reco.izq;
-      			System.out.println("\nEl nodo se elimino correctamente\n");
-      			return;
-      		}
-                balancear(nodo);
-                actualizarAltura(nodo);  
-      	}
+            if (reco.der != null) {
 
+                if (lado) {
+                    nodo.der = reco.der;
+                } else {
+                    nodo.izq = reco.der;
+                }
+            actualizarAltura(nodo);
+            balancear(nodo);
+                System.out.println("\nEl nodo se elimino correctamente\n");
+                return;
+            }
+            if (reco.izq != null) {
+                if (lado) {
+                    nodo.der = reco.izq;
+                } else {
+                    nodo.izq = reco.izq;
+                }
+                System.out.println("\nEl nodo se elimino correctamente\n");
+            actualizarAltura(nodo);
+            balancear(nodo);
+                return;
+            }
+            
+        }
+        //raiz = balancear(raiz);
+        //actualizarAltura(raiz);
 
-      }
+    }
 
         public void muestraMenuAVL(){
     /*
@@ -306,11 +337,12 @@ public class ArbolB{
 		System.out.println("3- Remover elemento del arbol");
 		System.out.println("4.- Recorrido PreOrder");
 		System.out.println("5.- Recorrido InOrder");
-		System.out.println("6.- Creditos");
-		System.out.println("7.- Salir del programa");
+                System.out.println("6.- Representacion del arbol");
+		System.out.println("7.- Creditos");
+		System.out.println("8.- Salir del programa");
 		menuOpcionAVL();
 	}
-        
+
         public void menuOpcionAVL(){
     /*
       Método encargado de optener la opción del usuario
@@ -364,6 +396,10 @@ public class ArbolB{
                     muestraMenuAVL();
                     break;
                 case 6:
+                    dibujarArbol();
+                    muestraMenuAVL();
+                    break;
+                case 7:
                     System.out.println("Universidad Politecnica de Chiapas");
                     System.out.println("Materia: Estructuras de Datos Avanzadas");
                     System.out.println("Catedratico: Mtra. Aremy Olaya Virrueta Gordillo");
@@ -374,7 +410,7 @@ public class ArbolB{
                     System.out.println("Alumno: Carlos Alejandro Zenteno Robles: 143382");
                     muestraMenuAVL();
                     break;
-                case 7:
+                case 8:
                     break;
                 default:
                     System.out.println("Opcion invalida");
