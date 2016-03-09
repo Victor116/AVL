@@ -82,9 +82,9 @@ public class Grafico extends JPanel{
 
             String valor="";
             if(nodo.der==null && nodo.izq==null){
-            valor=""+nodo.dato +"/" + nodo.fe;
+            valor=""+nodo.dato;
           }else{
-            valor= nodo.dato+"/"+nodo.fe;
+            valor= nodo.dato+"";
           }
 
           int width = fm.stringWidth(valor);
@@ -106,9 +106,9 @@ public class Grafico extends JPanel{
          g.draw(rect);
           String valor="";
           if(nodo.der==null && nodo.izq==null){
-             valor=""+nodo.dato+"/"+nodo.fe;
+             valor=""+nodo.dato;
           }else{
-            valor=nodo.dato+"/"+nodo.fe;
+            valor=nodo.dato+"";
           }
 
          g.drawString(valor, rect.x + 3, rect.y + Y2);

@@ -46,9 +46,8 @@ public class ArbolB{
 
     //Rotacion Simple a la Derecha
 
-    public Nodo
-         rotacionDer(Nodo nodort) {
-        System.out.println("Usando rotacion simple a la izquierda");
+    public Nodo rotacionDer(Nodo nodort) {
+        System.out.println("Usando rotacion simple a la derecha");
         Nodo aux = nodort.der;
         nodort.der = aux.izq;
         aux.izq = nodort;
@@ -188,6 +187,131 @@ public class ArbolB{
         return nuevoPadre;
     }
 
+    
+     Nodo rightRotate(Nodo y) {
+        Nodo x = y.izq;
+        Nodo T2 = x.der ;
+ 
+        // Perform rotation
+        x.der = y;
+        y.izq = T2;
+ 
+        // Update heights
+        y.peso = max(height(y.izq), height(y.der)) + 1;
+        x.peso = max(height(x.izq), height(x.der)) + 1;
+ 
+        // Return new root
+        return x;
+    }
+ 
+    // A utility function to left rotate subtree rooted with x
+    // See the diagram given above.
+    Nodo leftRotate(Nodo x) {
+        Nodo y = x.der;
+        Nodo T2 = y.izq;
+ 
+        // Perform rotation
+        y.izq = x;
+        x.der = T2;
+ 
+        //  Update heights
+        x.peso = max(height(x.izq), height(x.der)) + 1;
+        y.peso = max(height(y.izq), height(y.der)) + 1;
+ 
+        // Return new root
+        return y;
+    }
+    public Nodo deleteNodo(Nodo root, int eliminar) {
+ 
+        if (root == null) {
+            return root;
+        }
+   
+        if (eliminar < root.dato) {
+            root.izq = deleteNodo(root.izq, eliminar);
+        } 
+
+        else if (eliminar > root.dato) {
+            root.der = deleteNodo(root.der, eliminar);
+        } 
+         
+
+        else {
+ 
+            if ((root.izq == null) || (root.der == null)) {
+                Nodo temp = null;
+                if (temp == root.izq) {
+                    temp = root.der;
+                } else {
+                    temp = root.izq;
+                }
+                if (temp == null) {
+                    temp = root;
+                    root = null;
+                } else {
+                    root = temp;
+                }
+            } else {
+                Nodo temp = minValorNodo(root.der);
+                root.dato = temp.dato;
+                root.der = deleteNodo(root.der, temp.dato);
+            }
+        }
+        if (root == null) {
+            return root;
+        }
+        root.peso = max(height(root.izq), height(root.der)) + 1;
+
+        int balance = getBalance(root);
+
+        if (balance > 1 && getBalance(root.izq) >= 0) {
+            return rightRotate(root);
+        }
+
+        if (balance > 1 && getBalance(root.izq) < 0) {
+            root.izq = leftRotate(root.izq);
+            return rightRotate(root);
+        }
+
+        if (balance < -1 && getBalance(root.der) <= 0) {
+            return leftRotate(root);
+        }
+ 
+        if (balance < -1 && getBalance(root.der) > 0) {
+            root.der = rightRotate(root.der);
+            return leftRotate(root);
+        }
+ 
+        return root;
+    }
+ 
+    Nodo minValorNodo(Nodo nodo) {
+        Nodo reco = nodo;
+ 
+        /* loop down to find the leftmost leaf */
+        while (reco.izq != null) {
+            reco = reco.izq;
+        }
+ 
+        return reco;
+    }
+    // A utility function to print preorder traversal of the tree.
+    // The function also prints height of every node
+
+    
+    int height(Nodo N) {
+        if (N == null) {
+            return 0;
+        }
+        return N.peso;
+    }
+    
+    int getBalance(Nodo N) {
+        if (N == null) {
+            return 0;
+        }
+        return height(N.izq) - height(N.der);
+    }
     public void verificaNodo(Nodo nodo, Nodo reco, int info) {
 
         /*
@@ -286,7 +410,21 @@ public class ArbolB{
                 nodo.izq = reco.der;
             }
             actualizarAltura(nodo);
-            balancear(nodo);
+            Nodo nuevoPadre = nodo;
+            if (obtenerFE(nodo.izq) - obtenerFE(nodo.der) == 2) {
+                if (nodo.dato < nodo.izq.dato) {
+                    nuevoPadre = rotacionIzq(nodo);
+                } else {
+                    nuevoPadre = rotacionCompIzq(nodo);
+                }
+            }
+            if ((obtenerFE(nodo.der) - obtenerFE(nodo.izq) == 2)) {
+                if (nodo.dato > nodo.der.dato) {
+                    nuevoPadre = rotacionDer(nodo);
+                } else {
+                    nuevoPadre = rotacionCompDer(nodo);
+                }
+            }
         }
 
         if (reco.der == null || reco.izq == null) {// verifica si el nodo a eliminar tiene un solo hijo
@@ -302,30 +440,37 @@ public class ArbolB{
 
                 if (lado) {
                     nodo.der = reco.der;
+                    actualizarAltura(nodo.der);
+                    balancear(nodo.der);
                 } else {
                     nodo.izq = reco.der;
+                    actualizarAltura(nodo.izq);
+                    balancear(nodo.izq);
                 }
-            actualizarAltura(nodo);
-            balancear(nodo);
+
                 System.out.println("\nEl nodo se elimino correctamente\n");
                 return;
             }
             if (reco.izq != null) {
                 if (lado) {
                     nodo.der = reco.izq;
+                    actualizarAltura(nodo.der);
+                    balancear(nodo.der);
                 } else {
                     nodo.izq = reco.izq;
+                    actualizarAltura(nodo.izq);
+                    balancear(nodo.izq);
                 }
                 System.out.println("\nEl nodo se elimino correctamente\n");
-            actualizarAltura(nodo);
-            balancear(nodo);
+            //actualizarAltura(nodo);
+            //  balancear(nodo);
                 return;
             }
             
         }
-        //raiz = balancear(raiz);
+        
         //actualizarAltura(raiz);
-
+        //balancear(raiz);
     }
 
         public void muestraMenuAVL(){
@@ -382,7 +527,7 @@ public class ArbolB{
                     break;
                 case 3:
                     info = consigueValor();
-                    eliminarAVL(info);
+                    deleteNodo(ar.raiz,info);
                     muestraMenuAVL();
                     break;
                 case 4:

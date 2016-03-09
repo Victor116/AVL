@@ -18,6 +18,7 @@ public class Nodo {
 	Nodo izq;
 	int dato;
         int fe;
+        int peso;
 	boolean root;
 
 	public Nodo(){
@@ -32,7 +33,9 @@ public class Nodo {
 		this.der = null;
                 this.dato = d;
                 this.fe = 0;
+                this.peso = 1;
 	}
+
 
 	public void setDato(int dato){
 		this.dato = dato;

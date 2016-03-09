@@ -19,7 +19,6 @@ public class ArbolBalanceado {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ArbolB arbolito = new ArbolB();
         ar.muestraMenuAVL();
     }
 
