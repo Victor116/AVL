@@ -87,13 +87,13 @@ public class ArbolB {
  
         if (reba.fe == -2) {
             if (obtenerPeso(reba.izq.izq) >= obtenerPeso(reba.izq.der))
-                reba = rotacionDer(reba);
+                reba = rotacionIzq(reba);
             else
                 reba = rotaCompID(reba);
  
         } else if (reba.fe == 2) {
             if (obtenerPeso(reba.der.der) >= obtenerPeso(reba.der.izq))
-                reba = rotacionIzq(reba);
+                reba = rotacionDer(reba);
             else
                 reba = rotaCompDI(reba);
         }
@@ -105,8 +105,8 @@ public class ArbolB {
         }
     }
     //Rotacion simple a la izquierda
-    private Nodo rotacionIzq(Nodo rotaIzq) {
-        System.out.println("Rotacion simple a la izquierda");
+    private Nodo rotacionDer(Nodo rotaIzq) {
+        System.out.println("Rotacion simple a la derecha");
         Nodo aux = rotaIzq.der;
         aux.padre = rotaIzq.padre;
  
@@ -131,8 +131,8 @@ public class ArbolB {
         return aux;
     }
     //Rotacion simple a la derecha
-    private Nodo rotacionDer(Nodo rotaDer) {
-         System.out.println("Rotacion simple a la derecha");
+    private Nodo rotacionIzq(Nodo rotaDer) {
+         System.out.println("Rotacion simple a la izquierda");
 
         Nodo temp = rotaDer.izq;
         temp.padre = rotaDer.padre;
@@ -160,20 +160,20 @@ public class ArbolB {
  
     private Nodo rotaCompID(Nodo rotaCompID) {
         System.out.println("Rotacion compuesta izquierda a derecha");
-        rotaCompID.izq = rotacionIzq(rotaCompID.izq);
-        return rotacionDer(rotaCompID);
+        rotaCompID.izq = rotacionDer(rotaCompID.izq);
+        return rotacionIzq(rotaCompID);
     }
  
     private Nodo rotaCompDI(Nodo rotaCompDI) {
         System.out.println("Rotacion compuesta derecha a izquierda");
-        rotaCompDI.der = rotacionDer(rotaCompDI.der);
-        return rotacionIzq(rotaCompDI);
+        rotaCompDI.der = rotacionIzq(rotaCompDI.der);
+        return rotacionDer(rotaCompDI);
     }
  
     private int obtenerPeso(Nodo aux) {
         if (aux == null)
             return -1;
-        return 1 + Math.max(obtenerPeso(aux.izq), obtenerPeso(aux.der));
+        return 1 + Math.max(obtenerPeso(aux.der), obtenerPeso(aux.izq));
     }
  
     private void recibirBalanceo(Nodo... nodes) {
@@ -388,7 +388,7 @@ public class ArbolB {
                 actualizarAltura(subAr);
                 if ((obtenerFE(subAr.der) - obtenerFE(subAr.izq) == 2)) {
                     if (nuevo.dato > subAr.der.dato) {
-                        nuevoPadre = rotacionDer(subAr);
+                        nuevoPadre = rotacionIzq(subAr);
                     } else {
                         nuevoPadre = rotacionCompDer(subAr);
                     }
@@ -422,7 +422,7 @@ public class ArbolB {
     }
 
     //Rotacion Simple a la Derecha
-    public Nodo rotacionDer(Nodo nodort) {
+    public Nodo rotacionIzq(Nodo nodort) {
         System.out.println("Usando rotacion simple a la derecha");
         Nodo aux = nodort.der;
         nodort.der = aux.izq;
@@ -436,7 +436,7 @@ public class ArbolB {
     public Nodo rotacionCompIzq(Nodo nodoCom) {
         System.out.println("Usando rotacion Compuesta a la izquierda");
         Nodo aux;
-        nodoCom.izq = rotacionDer(nodoCom.izq);
+        nodoCom.izq = rotacionIzq(nodoCom.izq);
         aux = rotacionIzq(nodoCom);
         return aux;
     }
@@ -446,7 +446,7 @@ public class ArbolB {
         System.out.println("Usando rotacion Compuesta a la derecha");
         Nodo aux;
         nodoCom.der = rotacionIzq(nodoCom.der);
-        aux = rotacionDer(nodoCom);
+        aux = rotacionIzq(nodoCom);
         return aux;
     }
     //Metodo para insertar Balanceadamente
@@ -586,7 +586,7 @@ public class ArbolB {
             }
             if ((obtenerFE(nodo.der) - obtenerFE(nodo.izq) == 2)) {
                 if (nodo.dato > nodo.der.dato) {
-                    nuevoPadre = rotacionDer(nodo);
+                    nuevoPadre = rotacionIzq(nodo);
                 } else {
                     nuevoPadre = rotacionCompDer(nodo);
                 }
