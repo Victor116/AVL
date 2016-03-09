@@ -16,11 +16,18 @@ public class Nodo {
 
 	Nodo der;
 	Nodo izq;
+        Nodo padre;
 	int dato;
         int fe;
         int peso;
 	boolean root;
 
+ 
+        public Nodo(int num, Nodo p) {
+            dato = num;
+            padre = p;
+        }
+        
 	public Nodo(){
 		this.izq = null;
 		this.der = null;
@@ -32,8 +39,8 @@ public class Nodo {
 		this.izq = null;
 		this.der = null;
                 this.dato = d;
-                this.fe = 0;
-                this.peso = 1;
+                this.fe = 1;
+                this.peso = 0;
 	}
 
 
